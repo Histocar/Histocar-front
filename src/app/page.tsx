@@ -18,8 +18,7 @@ export default async function Home() {
           <div className="flex flex-col items-center gap-2">
             <div className="flex flex-col items-center justify-center gap-4"></div>
           </div>
-
-          {session?.user && <LatestMatricula />}
+          <LatestMatricula />
         </div>
       </main>
     </HydrateClient>

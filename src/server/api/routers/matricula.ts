@@ -2,17 +2,19 @@ import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { env } from "~/env";
 
-import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "~/server/api/trpc";
 import { matriculas } from "~/server/db/schema";
 
 const CARS_API_URL = env.HISTOCAR_CARS_API_URL;
 
 export const matriculaRouter = createTRPCRouter({
-  search: protectedProcedure
+  search: publicProcedure
     .input(z.object({ matricula: z.string(), cache: z.boolean().optional() }))
     .mutation(async ({ ctx, input }) => {
       const matricula = input.matricula;
       const cache = input.cache ?? false;
+
+      const userId = ctx.session?.user.id ?? null;
 
       try {
         if (cache) {
@@ -52,12 +54,12 @@ export const matriculaRouter = createTRPCRouter({
           where: (matriculas) => eq(matriculas.matricula, matricula),
         });
 
-        if (alreadyExists) {
+        if (alreadyExists && userId) {
           await ctx.db
             .update(matriculas)
             .set({
               matricula,
-              createdById: ctx.session.user.id,
+              createdById: userId,
               data,
               modelo:
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -65,10 +67,10 @@ export const matriculaRouter = createTRPCRouter({
                   ?.tipoModeloFabrica?.descripcion ?? "") as unknown as string,
             })
             .where(eq(matriculas.matricula, matricula));
-        } else {
+        } else if (userId) {
           await ctx.db.insert(matriculas).values({
             matricula,
-            createdById: ctx.session.user.id,
+            createdById: userId,
             data,
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             modelo: (data?.PatenteCaba?.["https://lb.agip.gob.ar/Empadronados/json/captcha/GetDatos"]?.result?.cabecera
@@ -87,9 +89,13 @@ export const matriculaRouter = createTRPCRouter({
       }
     }),
 
-  getLatest: protectedProcedure.query(async ({ ctx }) => {
+  getLatest: publicProcedure.query(async ({ ctx }) => {
     try {
-      const userId = ctx.session.user.id;
+      const userId = ctx.session?.user.id ?? null;
+
+      if (!userId) {
+        return null;
+      }
 
       const matriculaHistorial = await ctx.db.query.matriculas.findFirst({
         orderBy: (matriculas, { desc }) => [desc(matriculas.createdAt)],
