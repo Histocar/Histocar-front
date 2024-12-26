@@ -1,0 +1,1 @@
+ALTER TABLE "histocar_matricula" ADD COLUMN "modelo" varchar(255) DEFAULT '' NOT NULL;

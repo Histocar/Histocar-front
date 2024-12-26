@@ -1,0 +1,7 @@
+colorlog==6.8.2
+Flask==3.0.3
+playwright_recaptcha==0.5.1
+undetected_playwright==0.3.0
+gunicorn
+aiohttp
+python-dotenv
