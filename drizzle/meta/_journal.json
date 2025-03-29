@@ -22,6 +22,13 @@
       "when": 1726010571364,
       "tag": "0002_organic_hairball",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1743287729844,
+      "tag": "0003_tense_pet_avengers",
+      "breakpoints": true
     }
   ]
 }

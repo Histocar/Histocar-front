@@ -1,4 +1,3 @@
-import { postRouter } from "~/server/api/routers/post";
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 import { matriculaRouter } from "./routers/matricula";
 
@@ -8,7 +7,6 @@ import { matriculaRouter } from "./routers/matricula";
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
-  post: postRouter,
   matricula: matriculaRouter,
 });
 
@@ -19,7 +17,7 @@ export type AppRouter = typeof appRouter;
  * Create a server-side caller for the tRPC API.
  * @example
  * const trpc = createCaller(createContext);
- * const res = await trpc.post.all();
- *       ^? Post[]
+ * const res = await trpc.matricula.getLatest();
+ *       ^? Matricula | null
  */
 export const createCaller = createCallerFactory(appRouter);
